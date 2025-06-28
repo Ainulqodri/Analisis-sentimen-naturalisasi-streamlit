@@ -1,5 +1,5 @@
 streamlit==1.33.0
-tensorflow==2.13.0
+tflite-runtime
 pandas==1.5.3
 numpy==1.23.5
 scikit-learn==1.2.2
