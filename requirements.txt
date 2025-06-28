@@ -1,0 +1,11 @@
+streamlit==1.33.0
+tensorflow==2.12.0
+pandas==1.5.3
+numpy==1.23.5
+scikit-learn==1.2.2
+seaborn
+nltk==3.8.1
+emoji==2.2.0
+snscrape==0.6.2.20230113
+matplotlib==3.7.1
+python-pptx==0.6.21
