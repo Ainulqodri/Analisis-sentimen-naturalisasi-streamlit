@@ -10,3 +10,4 @@ matplotlib
 python-pptx
 wordcloud
 sastrawi
+keras>=3.0.0
