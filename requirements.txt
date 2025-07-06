@@ -9,3 +9,4 @@ emoji
 matplotlib
 python-pptx
 wordcloud
+sastrawi
