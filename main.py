@@ -60,7 +60,7 @@ def load_model_tokenizer():
     download_file(label_url, label_path)
 
     # Load model dan tokenizer
-    model = load_model(model_path)
+    model = load_model(model_path, compile=False)
     with open(tokenizer_path, "rb") as f:
         tokenizer = pickle.load(f)
     with open(label_path, "rb") as f:
