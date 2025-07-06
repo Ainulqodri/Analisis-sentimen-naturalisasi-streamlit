@@ -5,12 +5,13 @@ import pandas as pd
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import seaborn as sns
 from collections import Counter
 from wordcloud import WordCloud
 from sklearn.metrics import classification_report, confusion_matrix
 
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 import preprocessing
@@ -31,10 +32,10 @@ menu = st.sidebar.radio("📚 Pilih Menu", ["Home", "Analisis", "Wordcloud", "Te
 # === Load model dan tokenizer hanya sekali ===
 @st.cache_resource
 def load_model_tokenizer():
-    model = load_model("app/model/model_lstm_89_new.keras")
-    with open("app/model/tokenizer_89.pkl", "rb") as f:
+    model = load_model("model/model_lstm_88.h5")
+    with open("model/tokenizer_88.pkl", "rb") as f:
         tokenizer = pickle.load(f)
-    with open("app/model/label_encoder.pkl", "rb") as f:
+    with open("model/label_encoder_88.pkl", "rb") as f:
         label_encoder = pickle.load(f)
     return model, tokenizer, label_encoder
 
@@ -78,7 +79,7 @@ elif menu == "Analisis":
 
         with st.spinner("🔍 Memproses dan menganalisis data..."):
             df["clean_text"] = df[text_col].astype(str).apply(full_preprocess if preprocess_option == "Ya" else str)
-            df = df.drop_duplicates(subset=["clean_text"], keep="first")
+            # df = df.drop_duplicates(subset=["clean_text"], keep="first")
             predictions, confidences = predict_sentiment(df["clean_text"], model, tokenizer)
             df["predicted_label"] = predictions
             df["confidence"] = confidences
@@ -93,13 +94,68 @@ elif menu == "Analisis":
         st.success("✅ Data sudah dianalisis!")
         st.dataframe(df[["clean_text", "sentimen_prediksi", "confidence"]])
 
-        # Pie chart
+        # Fungsi untuk menampilkan jumlah dan persentase
+        def format_label(pct, allvals):
+            total = sum(allvals)
+            count = int(round(pct * total / 100.0))
+            return f"{pct:.1f}%\n({count})"
+
+        # === Pie Chart Distribusi ===
         st.subheader("📊 Distribusi Sentimen (Pie Chart)")
+        # # Tampilkan jumlah total data
+        # st.write("Jumlah data total:", len(df))
+
+        # # Tampilkan jumlah yang berhasil diprediksi
+        # st.write("Jumlah data dengan label prediksi:", df["predicted_label"].notnull().sum())
+
+        # # Tampilkan jumlah yang gagal (NaN)
+        # st.write("Jumlah data tanpa prediksi:", df["predicted_label"].isnull().sum())
         pie_data = df["predicted_label"].value_counts().rename({0: "Negatif", 1: "Positif"})
         fig1, ax1 = plt.subplots()
-        ax1.pie(pie_data, labels=pie_data.index, autopct="%1.1f%%", startangle=90)
+        ax1.pie(
+            pie_data,
+            labels=pie_data.index,
+            autopct=lambda pct: format_label(pct, pie_data),
+            startangle=90
+        )
         ax1.axis("equal")
         st.pyplot(fig1)
+
+        # === Visualisasi Sentimen Berdasarkan Waktu ===
+        if "created_at" in df.columns:
+            st.subheader("📈 Distribusi Sentimen Bulanan (Line Chart)")
+
+            try:
+                # Konversi created_at ke datetime
+                df["created_at"] = pd.to_datetime(df["created_at"], errors='coerce')
+                df = df.dropna(subset=["created_at"])
+
+                # Ambil bulan saja
+                df["created_week"] = df["created_at"].dt.to_period("W").dt.start_time
+
+                # Hitung jumlah tweet per bulan dan label
+                timeline_monthly = df.groupby(["created_week", "predicted_label"]).size().unstack(fill_value=0)
+                timeline_monthly.columns = ["Negatif" if c == 0 else "Positif" for c in timeline_monthly.columns]
+
+                # Plot line chart bulanan
+                fig_time, ax_time = plt.subplots(figsize=(10, 5))
+                timeline_monthly.plot(kind="line", ax=ax_time, marker="o")
+
+                ax_time.set_title("Distribusi Sentimen Bulanan")
+                ax_time.set_xlabel("Bulan")
+                ax_time.set_ylabel("Jumlah Tweet")
+                ax_time.legend(title="Sentimen")
+
+                ax_time.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
+                ax_time.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+                fig_time.autofmt_xdate(rotation=45)
+
+                st.pyplot(fig_time)
+
+            except Exception as e:
+                st.warning(f"⚠️ Gagal memproses waktu: {e}")
+
+
 
         # Confusion Matrix dan Classification Report
         if label_col != "(Tidak ada)":
