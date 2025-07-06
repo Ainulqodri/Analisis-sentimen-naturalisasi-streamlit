@@ -1,5 +1,7 @@
 # streamlit_sentiment_app.py
 import streamlit as st
+import os
+import requests
 import io
 import pandas as pd
 import numpy as np
@@ -30,13 +32,40 @@ def predict_sentiment(texts, model, tokenizer, max_len=50):
 menu = st.sidebar.radio("📚 Pilih Menu", ["Home", "Analisis", "Wordcloud", "Tentang Model"])
 
 # === Load model dan tokenizer hanya sekali ===
+def download_file(url, output_path):
+    if not os.path.exists(output_path):
+        print(f"Downloading {url}...")
+        r = requests.get(url)
+        with open(output_path, 'wb') as f:
+            f.write(r.content)
+
 @st.cache_resource
 def load_model_tokenizer():
-    model = load_model("model/model_lstm_88.h5")
-    with open("model/tokenizer_88.pkl", "rb") as f:
+    os.makedirs("model", exist_ok=True)
+    os.makedirs("app", exist_ok=True)
+
+    # URLs dari GitHub Releases
+    model_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/v1.0/model_lstm_88.h5"
+    tokenizer_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/v1.0/tokenizer_88.pkl"
+    label_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/v1.0/label_encoder_88.pkl"
+
+    # Path lokal setelah download
+    model_path = "model/model_lstm_88.h5"
+    tokenizer_path = "app/tokenizer_88.pkl"
+    label_path = "app/label_encoder_88.pkl"
+
+    # Download jika belum ada
+    download_file(model_url, model_path)
+    download_file(tokenizer_url, tokenizer_path)
+    download_file(label_url, label_path)
+
+    # Load model dan tokenizer
+    model = load_model(model_path)
+    with open(tokenizer_path, "rb") as f:
         tokenizer = pickle.load(f)
-    with open("model/label_encoder_88.pkl", "rb") as f:
+    with open(label_path, "rb") as f:
         label_encoder = pickle.load(f)
+
     return model, tokenizer, label_encoder
 
 model, tokenizer, label_encoder = load_model_tokenizer()
