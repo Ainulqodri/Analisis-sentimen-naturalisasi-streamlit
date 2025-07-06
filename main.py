@@ -45,12 +45,12 @@ def load_model_tokenizer():
     os.makedirs("app", exist_ok=True)
 
     # URLs dari GitHub Releases
-    model_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/v1.0/model_lstm_88.h5"
-    tokenizer_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/v1.0/tokenizer_88.pkl"
-    label_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/v1.0/label_encoder_88.pkl"
+    model_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/model88/model_lstm_88.keras"
+    tokenizer_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/model88/tokenizer_88.pkl"
+    label_url = "https://github.com/Ainulqodri/Analisis-sentimen-naturalisasi-streamlit/releases/download/model88/label_encoder_88.pkl"
 
     # Path lokal setelah download
-    model_path = "model/model_lstm_88.h5"
+    model_path = "model/model_lstm_88.keras"
     tokenizer_path = "app/tokenizer_88.pkl"
     label_path = "app/label_encoder_88.pkl"
 
