@@ -13,7 +13,7 @@ from collections import Counter
 from wordcloud import WordCloud
 from sklearn.metrics import classification_report, confusion_matrix
 
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 import preprocessing
