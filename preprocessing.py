@@ -35,6 +35,13 @@ def build_slang_dict():
 slang_dict = build_slang_dict()
 do_not_normalize = load_whitelist()
 
+# === 4. Custom kata penting dan kata yang tidak boleh di-stemming ===
+with open("resources/kata_penting.txt", "r", encoding="utf-8") as f:
+    kata_penting = set(line.strip().lower() for line in f if line.strip())
+
+with open("resources/custom_not_stemming.txt", "r", encoding="utf-8") as f:
+    custom_not_stemming = set(line.strip().lower() for line in f if line.strip())
+
 # Load stopwords
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 
@@ -46,8 +53,10 @@ stopwords_sastrawi = set(factory.get_stop_words())
 with open("resources/stopwords_custom.txt", "r", encoding="utf-8") as f:
     stopwords_custom = set(line.strip() for line in f.readlines())
 
-# Gabungkan dua-duanya
-stopwords_all = stopwords_sastrawi.union(stopwords_custom)
+stopwords_sastrawi_custom = stopwords_sastrawi.difference(kata_penting)
+
+# Gabungkan semua stopword
+stopwords_all = stopwords_sastrawi_custom.union(stopwords_custom)
 
 # Init stemmer
 stemmer = StemmerFactory().create_stemmer()
@@ -97,7 +106,9 @@ def stemming_text(text):
     words = text.split()
     stemmed = []
     for word in words:
-        if word in stem_cache:
+        if word in custom_not_stemming:
+            stemmed.append(word)
+        elif word in stem_cache:
             stemmed.append(stem_cache[word])
         else:
             s = stemmer.stem(word)
