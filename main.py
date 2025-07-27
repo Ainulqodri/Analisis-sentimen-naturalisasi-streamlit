@@ -150,42 +150,6 @@ elif menu == "Analisis":
         ax1.axis("equal")
         st.pyplot(fig1)
 
-        # === Visualisasi Sentimen Berdasarkan Waktu ===
-        if "created_at" in df.columns:
-            st.subheader("📈 Distribusi Sentimen Bulanan (Line Chart)")
-
-            try:
-                # Konversi created_at ke datetime
-                df["created_at"] = pd.to_datetime(df["created_at"], errors='coerce')
-                df = df.dropna(subset=["created_at"])
-
-                # Ambil bulan saja
-                df["created_week"] = df["created_at"].dt.to_period("W").dt.start_time
-
-                # Hitung jumlah tweet per bulan dan label
-                timeline_monthly = df.groupby(["created_week", "predicted_label"]).size().unstack(fill_value=0)
-                timeline_monthly.columns = ["Negatif" if c == 0 else "Positif" for c in timeline_monthly.columns]
-
-                # Plot line chart bulanan
-                fig_time, ax_time = plt.subplots(figsize=(10, 5))
-                timeline_monthly.plot(kind="line", ax=ax_time, marker="o")
-
-                ax_time.set_title("Distribusi Sentimen Bulanan")
-                ax_time.set_xlabel("Bulan")
-                ax_time.set_ylabel("Jumlah Tweet")
-                ax_time.legend(title="Sentimen")
-
-                ax_time.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
-                ax_time.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-                fig_time.autofmt_xdate(rotation=45)
-
-                st.pyplot(fig_time)
-
-            except Exception as e:
-                st.warning(f"⚠️ Gagal memproses waktu: {e}")
-
-
-
         # Confusion Matrix dan Classification Report
         if label_col != "(Tidak ada)":
             st.subheader("🧮 Confusion Matrix & Classification Report")
