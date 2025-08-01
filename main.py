@@ -231,7 +231,7 @@ elif menu == "Wordcloud":
 elif menu == "Tentang Model":
     st.title("🧠 Tentang Model LSTM")
     st.markdown("""
-    - **Model:** LSTM
+    - **Model:** LSTM dengan layer Bidirectional (Bi-LSTM)
     - **Keluaran:** 2 kelas (biner) dengan aktivasi `sigmoid`
     - **Maxlen:** 50
     - **Dataset:** Hasil preprocessing media sosial X
