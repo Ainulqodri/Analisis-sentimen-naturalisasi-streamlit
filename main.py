@@ -108,7 +108,7 @@ elif menu == "Analisis":
 
         with st.spinner("🔍 Memproses dan menganalisis data..."):
             df["clean_text"] = df[text_col].astype(str).apply(full_preprocess if preprocess_option == "Ya" else str)
-            # df = df.drop_duplicates(subset=["clean_text"], keep="first")
+            df = df.drop_duplicates(subset=["clean_text"], keep="first").reset_index(drop=True)
             predictions, confidences = predict_sentiment(df["clean_text"], model, tokenizer)
             df["predicted_label"] = predictions
             df["confidence"] = confidences
